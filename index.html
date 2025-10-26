@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced English Grammar Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .app-body {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #check-btn {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+            flex: 2;
+        }
+
+        #clear-btn {
+            background-color: #f5f5f5;
+            color: #666;
+            flex: 1;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #check-btn:hover {
+            background: linear-gradient(to right, #3a00b0, #7a1dc2);
+        }
+
+        #clear-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .results-section {
+            display: none;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #6a11cb;
+        }
+
+        .results-section h2 {
+            color: #4a00e0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #ff4757;
+        }
+
+        .error-item.spelling {
+            border-left-color: #ff9f43;
+        }
+
+        .error-item.capitalization {
+            border-left-color: #2e86de;
+        }
+
+        .error-item.corrected {
+            border-left-color: #2ed573;
+        }
+
+        .error-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .grammar-type {
+            background-color: #ff4757;
+            color: white;
+        }
+
+        .spelling-type {
+            background-color: #ff9f43;
+            color: white;
+        }
+
+        .capitalization-type {
+            background-color: #2e86de;
+            color: white;
+        }
+
+        .error-text {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ff4757;
+        }
+
+        .correction-text {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2ed573;
+        }
+
+        .explanation {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .stat-box {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a00e0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .final-correction {
+            background: linear-gradient(to right, #2ed573, #1dd1a1);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .final-correction h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .final-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid white;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #6a11cb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced English Grammar Checker</h1>
+            <p>Improve your English writing by identifying and correcting grammar, spelling, and capitalization mistakes</p>
+        </header>
+        
+        <div class="app-body">
+            <div class="input-section">
+                <textarea id="text-input" placeholder="Type or paste your English text here to check for grammar, spelling, and capitalization mistakes..."></textarea>
+                <div class="button-group">
+                    <button id="check-btn">Check Text</button>
+                    <button id="clear-btn">Clear Text</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your text for mistakes...</p>
+            </div>
+            
+            <div class="results-section" id="results-section">
+                <h2>
+                    <span>Text Analysis Results</span>
+                </h2>
+                <div id="errors-container"></div>
+                
+                <div class="final-correction" id="final-correction">
+                    <h3>✅ Corrected Text</h3>
+                    <div class="final-text" id="final-text"></div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="total-errors">0</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="corrected-errors">0</div>
+                        <div class="stat-label">Corrected</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="accuracy">100%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Advanced English Grammar Checker &copy; 2023 | Improve your English writing skills</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textInput = document.getElementById('text-input');
+            const checkBtn = document.getElementById('check-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultsSection = document.getElementById('results-section');
+            const errorsContainer = document.getElementById('errors-container');
+            const loading = document.getElementById('loading');
+            const totalErrorsEl = document.getElementById('total-errors');
+            const correctedErrorsEl = document.getElementById('corrected-errors');
+            const accuracyEl = document.getElementById('accuracy');
+            const finalCorrection = document.getElementById('final-correction');
+            const finalText = document.getElementById('final-text');
+            
+            // Common misspellings dictionary
+            const spellingCorrections = {
+                'recieve': 'receive', 'acheive': 'achieve', 'neccessary': 'necessary',
+                'occured': 'occurred', 'seperate': 'separate', 'definately': 'definitely',
+                'goverment': 'government', 'alot': 'a lot', 'untill': 'until', 'wich': 'which',
+                'truely': 'truly', 'arguement': 'argument', 'comming': 'coming', 'existance': 'existence',
+                'guidence': 'guidance', 'judgement': 'judgment', 'lisence': 'license', 'maintainance': 'maintenance',
+                'neice': 'niece', 'occurence': 'occurrence', 'persue': 'pursue', 'relevent': 'relevant',
+                'sucess': 'success', 'thier': 'their', 'tommorow': 'tomorrow', 'writting': 'writing',
+                'adress': 'address', 'beleive': 'believe', 'calender': 'calendar', 'cemetary': 'cemetery',
+                'consious': 'conscious', 'equiptment': 'equipment', 'excellant': 'excellent', 'firey': 'fiery',
+                'foriegn': 'foreign', 'gratefull': 'grateful', 'harrass': 'harass', 'heros': 'heroes',
+                'independant': 'independent', 'jewelery': 'jewelry', 'knowlege': 'knowledge', 'leasure': 'leisure'
+            };
+            
+            // Grammar rules and corrections
+            const grammarRules = [
+                {
+                    pattern: /\b(he|she|it) (go|have|do)\b/gi,
+                    correction: (match) => {
+                        const parts = match.split(' ');
+                        parts[1] = parts[1] + 's';
+                        return parts.join(' ');
+                    },
+                    explanation: "With third person singular subjects (he, she, it), verbs need an 's' at the end.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(i) (is|am|are)\b/gi,
+                    correction: (match) => {
+                        if (match.toLowerCase().includes('is')) return 'I am';
+                        if (match.toLowerCase().includes('are')) return 'I am';
+                        return match;
+                    },
+                    explanation: "The correct form with 'I' is 'I am', not 'I is' or 'I are'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(they|we|you) (is)\b/gi,
+                    correction: (match) => match.replace(/is$/i, 'are'),
+                    explanation: "With plural subjects (they, we, you), use 'are' instead of 'is'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(a) (apple|hour|honest|umbrella|egg)\b/gi,
+                    correction: (match) => match.replace(/^a /i, 'an '),
+                    explanation: "Use 'an' before words that begin with a vowel sound.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(an) (book|university|one|European|user)\b/gi,
+                    correction: (match) => match.replace(/^an /i, 'a '),
+                    explanation: "Use 'a' before words that begin with a consonant sound.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(me and|me or)\b/gi,
+                    correction: (match) => match.replace(/^me /i, 'I '),
+                    explanation: "Use 'I' as the subject of a sentence, not 'me'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(your)\b/gi,
+                    test: (text) => {
+                        const yourRegex = /\byour\b/gi;
+                        const youAreRegex = /\b(you're|you are)\b/gi;
+                        return yourRegex.test(text) && !youAreRegex.test(text);
+                    },
+                    correction: (match, context) => {
+                        if (context.includes(" your ")) {
+                            return "you're";
+                        }
+                        return match;
+                    },
+                    explanation: "Remember: 'your' shows possession (your car), 'you're' is short for 'you are'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(their|there|they're)\b/gi,
+                    test: (text) => true,
+                    correction: (match, context) => {
+                        if (match.toLowerCase() === 'their' && context.includes(' over ')) return 'there';
+                        if (match.toLowerCase() === 'there' && context.includes(' house')) return 'their';
+                        if (match.toLowerCase() === 'theyre') return "they're";
+                        return match;
+                    },
+                    explanation: "Remember: 'their' shows possession, 'there' refers to a place, 'they're' is short for 'they are'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(its)\b/gi,
+                    test: (text) => {
+                        const itsRegex = /\bits\b/gi;
+                        const itIsRegex = /\b(it's|it is)\b/gi;
+                        return itsRegex.test(text) && !itIsRegex.test(text);
+                    },
+                    correction: (match, context) => {
+                        if (context.includes(" its ")) return "it's";
+                        return match;
+                    },
+                    explanation: "Remember: 'its' shows possession, 'it's' is short for 'it is'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(can not)\b/gi,
+                    correction: (match) => "cannot",
+                    explanation: "The correct form is 'cannot' (one word), not 'can not'.",
+                    type: "grammar"
+                },
+                {
+                    pattern: /\b(alot)\b/gi,
+                    correction: (match) => "a lot",
+                    explanation: "The correct form is 'a lot' (two words), not 'alot'.",
+                    type: "spelling"
+                }
+            ];
+            
+            // Check text function
+            function checkText() {
+                const text = textInput.value.trim();
+                
+                if (!text) {
+                    alert('Please enter some text to check.');
+                    return;
+                }
+                
+                loading.style.display = 'block';
+                resultsSection.style.display = 'none';
+                finalCorrection.style.display = 'none';
+                
+                setTimeout(() => {
+                    const errors = findErrors(text);
+                    displayResults(errors, text);
+                    loading.style.display = 'none';
+                    resultsSection.style.display = 'block';
+                }, 1000);
+            }
+            
+            // Find errors in text
+            function findErrors(text) {
+                const errors = [];
+                
+                // Check grammar rules
+                grammarRules.forEach(rule => {
+                    if (rule.test && !rule.test(text)) return;
+                    
+                    if (rule.pattern) {
+                        const matches = text.matchAll(rule.pattern);
+                        for (const match of matches) {
+                            const original = match[0];
+                            const correction = rule.correction(original, text);
+                            if (original.toLowerCase() !== correction.toLowerCase()) {
+                                errors.push({ original, correction, explanation: rule.explanation, type: rule.type || "grammar" });
+                            }
+                        }
+                    }
+                });
+                
+                // Check spelling
+                const words = text.split(/\s+/);
+                words.forEach((word) => {
+                    const cleanWord = word.replace(/[.,!?;:"]/g, '').toLowerCase();
+                    if (spellingCorrections[cleanWord]) {
+                        errors.push({
+                            original: word,
+                            correction: preserveCase(word, spellingCorrections[cleanWord]),
+                            explanation: `"${word}" is misspelled. The correct spelling is "${spellingCorrections[cleanWord]}".`,
+                            type: "spelling"
+                        });
+                    }
+                });
+                
+                // Check capitalization - sentence beginnings
+                const sentences = text.split(/(?<=[.!?])\s+/);
+                sentences.forEach(sentence => {
+                    if (sentence.length > 0 && sentence[0] !== sentence[0].toUpperCase()) {
+                        errors.push({
+                            original: sentence,
+                            correction: sentence.charAt(0).toUpperCase() + sentence.slice(1),
+                            explanation: "The first letter of a sentence should be capitalized.",
+                            type: "capitalization"
+                        });
+                    }
+                });
+                
+                // Check proper nouns
+                const properNouns = ['i', 'london', 'paris', 'john', 'mary', 'monday', 'tuesday', 'january', 'february'];
+                words.forEach(word => {
+                    const cleanWord = word.replace(/[.,!?;:"]/g, '');
+                    if (properNouns.includes(cleanWord.toLowerCase()) && cleanWord[0] !== cleanWord[0].toUpperCase()) {
+                        errors.push({
+                            original: cleanWord,
+                            correction: cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1),
+                            explanation: `"${cleanWord}" is a proper noun and should be capitalized.`,
+                            type: "capitalization"
+                        });
+                    }
+                });
+                
+                // Check for lowercase "i" as a standalone word
+                const iRegex = /\bi\b/g;
+                let iMatch;
+                while ((iMatch = iRegex.exec(text)) !== null) {
+                    errors.push({
+                        original: 'i',
+                        correction: 'I',
+                        explanation: "The pronoun 'I' should always be capitalized.",
+                        type: "capitalization"
+                    });
+                }
+                
+                return errors;
+            }
+            
+            // Helper function to preserve original casing when correcting
+            function preserveCase(original, correction) {
+                if (original === original.toUpperCase()) return correction.toUpperCase();
+                if (original[0] === original[0].toUpperCase() && original.slice(1) === original.slice(1).toLowerCase()) {
+                    return correction.charAt(0).toUpperCase() + correction.slice(1);
+                }
+                return correction.toLowerCase();
+            }
+            
+            // Display results
+            function displayResults(errors, originalText) {
+                errorsContainer.innerHTML = '';
+                
+                if (errors.length === 0) {
+                    errorsContainer.innerHTML = `
+                        <div class="error-item corrected">
+                            <div class="correction-text">No errors found!</div>
+                            <div class="explanation">Your text appears to be correct. Great job!</div>
+                        </div>
+                    `;
+                    totalErrorsEl.textContent = '0';
+                    correctedErrorsEl.textContent = '0';
+                    accuracyEl.textContent = '100%';
+                    finalCorrection.style.display = 'none';
+                    return;
+                }
+                
+                // Group errors by type
+                const grammarErrors = errors.filter(error => error.type === "grammar");
+                const spellingErrors = errors.filter(error => error.type === "spelling");
+                const capitalizationErrors = errors.filter(error => error.type === "capitalization");
+                
+                // Display grammar errors
+                if (grammarErrors.length > 0) {
+                    const grammarHeader = document.createElement('div');
+                    grammarHeader.innerHTML = `<h3 style="color: #4a00e0; margin: 20px 0 10px;">Grammar Errors</h3>`;
+                    errorsContainer.appendChild(grammarHeader);
+                    
+                    grammarErrors.forEach(error => {
+                        const errorElement = document.createElement('div');
+                        errorElement.className = 'error-item';
+                        errorElement.innerHTML = `
+                            <span class="error-type grammar-type">Grammar</span>
+                            <div class="error-text">Incorrect: "${error.original}"</div>
+                            <div class="correction-text">Correct: "${error.correction}"</div>
+                            <div class="explanation">${error.explanation}</div>
+                        `;
+                        errorsContainer.appendChild(errorElement);
+                    });
+                }
+                
+                // Display spelling errors
+                if (spellingErrors.length > 0) {
+                    const spellingHeader = document.createElement('div');
+                    spellingHeader.innerHTML = `<h3 style="color: #4a00e0; margin: 20px 0 10px;">Spelling Errors</h3>`;
+                    errorsContainer.appendChild(spellingHeader);
+                    
+                    spellingErrors.forEach(error => {
+                        const errorElement = document.createElement('div');
+                        errorElement.className = 'error-item spelling';
+                        errorElement.innerHTML = `
+                            <span class="error-type spelling-type">Spelling</span>
+                            <div class="error-text">Incorrect: "${error.original}"</div>
+                            <div class="correction-text">Correct: "${error.correction}"</div>
+                            <div class="explanation">${error.explanation}</div>
+                        `;
+                        errorsContainer.appendChild(errorElement);
+                    });
+                }
+                
+                // Display capitalization errors
+                if (capitalizationErrors.length > 0) {
+                    const capitalizationHeader = document.createElement('div');
+                    capitalizationHeader.innerHTML = `<h3 style="color: #4a00e0; margin: 20px 0 10px;">Capitalization Errors</h3>`;
+                    errorsContainer.appendChild(capitalizationHeader);
+                    
+                    capitalizationErrors.forEach(error => {
+                        const errorElement = document.createElement('div');
+                        errorElement.className = 'error-item capitalization';
+                        errorElement.innerHTML = `
+                            <span class="error-type capitalization-type">Capitalization</span>
+                            <div class="error-text">Incorrect: "${error.original}"</div>
+                            <div class="correction-text">Correct: "${error.correction}"</div>
+                            <div class="explanation">${error.explanation}</div>
+                        `;
+                        errorsContainer.appendChild(errorElement);
+                    });
+                }
+                
+                // Update stats
+                totalErrorsEl.textContent = errors.length;
+                correctedErrorsEl.textContent = errors.length;
+                const wordCount = originalText.split(/\s+/).length;
+                const accuracy = Math.max(0, 100 - (errors.length / wordCount * 100)).toFixed(1);
+                accuracyEl.textContent = `${accuracy}%`;
+                
+                // Show final corrected text
+                showFinalCorrection(originalText, errors);
+            }
+            
+            // Generate and display final corrected text - FIXED VERSION
+            function showFinalCorrection(originalText, errors) {
+                let correctedText = originalText;
+                
+                // First, handle sentence capitalization errors separately
+                const sentenceCapitalizationErrors = errors.filter(error => 
+                    error.type === "capitalization" && error.original.length > 1
+                );
+                
+                // Apply sentence capitalization corrections
+                sentenceCapitalizationErrors.forEach(error => {
+                    // Find the exact position of the sentence and replace it
+                    const startIndex = correctedText.indexOf(error.original);
+                    if (startIndex !== -1) {
+                        correctedText = correctedText.substring(0, startIndex) + 
+                                       error.correction + 
+                                       correctedText.substring(startIndex + error.original.length);
+                    }
+                });
+                
+                // Then handle word-level errors (grammar, spelling, and single-word capitalization)
+                const wordErrors = errors.filter(error => 
+                    error.type !== "capitalization" || error.original.length === 1
+                );
+                
+                // Apply word-level corrections in reverse order to avoid position shifting
+                const sortedWordErrors = [...wordErrors].sort((a, b) => {
+                    return correctedText.lastIndexOf(b.original) - correctedText.lastIndexOf(a.original);
+                });
+                
+                sortedWordErrors.forEach(error => {
+                    const regex = new RegExp('\\b' + escapeRegExp(error.original) + '\\b', 'gi');
+                    correctedText = correctedText.replace(regex, (match) => {
+                        return preserveCase(match, error.correction);
+                    });
+                });
+                
+                finalText.textContent = correctedText;
+                finalCorrection.style.display = 'block';
+            }
+            
+            // Helper function to escape special regex characters
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+            
+            // Clear text function
+            function clearText() {
+                textInput.value = '';
+                resultsSection.style.display = 'none';
+                finalCorrection.style.display = 'none';
+            }
+            
+            // Event listeners
+            checkBtn.addEventListener('click', checkText);
+            clearBtn.addEventListener('click', clearText);
+            
+            // Add some sample text for demonstration
+            textInput.value = "hi. welcome to the advanced english grammar checker. Made by Saiyam.";
+        });
+    </script>
+</body>
+</html>
